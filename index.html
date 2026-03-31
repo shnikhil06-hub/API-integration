@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>scipyHUT 🍕</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>🍽️ scipyHUT</h1>
+    <a href="login.html" class="login-btn">Login</a>
+  </div>
+
+  <div class="controls">
+
+    <input type="text" id="search" placeholder="Search meals...">
+
+    <select id="sort">
+      <option value="default">Sort</option>
+      <option value="name">Name</option>
+      <option value="likes">Popularity</option>
+      <option value="calories">Calories</option>
+    </select>
+
+    <select id="order">
+      <option value="asc">Low → High ⬆️</option>
+      <option value="desc">High → Low ⬇️</option>
+    </select>
+
+    <select id="calorieRange">
+      <option value="all">All Calories</option>
+      <option value="0-100">0 - 100 kcal</option>
+      <option value="100-200">100 - 200 kcal</option>
+      <option value="200-300">200 - 300 kcal</option>
+      <option value="300-500">300 - 500 kcal</option>
+      <option value="500-700">500 - 700 kcal</option>
+      <option value="700-1000">700 - 1000 kcal</option>
+      <option value="1000+">1000+ kcal</option>
+    </select>
+
+    <label>
+      <input type="checkbox" id="vegOnly"> Veg Only
+    </label>
+
+    <button id="darkModeToggle">🌙</button>
+
+  </div>
+</header>
+
+<main>
+  <div id="menu" class="menu"></div>
+</main>
+
+<script src="script.js"></script>
+
+</body>
+</html>
