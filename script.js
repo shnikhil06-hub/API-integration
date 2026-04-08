@@ -1,227 +1,162 @@
-// 🔑 API
+// 🔑 API KEY
 const API_KEY = "3cd7c4eae7154ec58b9ef1cb617e3f70";
 
 const BASE_URL = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&number=20&addRecipeInformation=true&addRecipeNutrition=true`;
 
-// 📦 Data
+// 📦 DATA
 let meals = [];
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-// 🔄 Fetch API
+// 🔄 FETCH DATA
 async function fetchMeals() {
-    const menu = document.getElementById("menu");
-    menu.innerHTML = "<p>Loading...</p>";
+  const menu = document.getElementById("menu");
+  menu.innerHTML = "<p>Loading...</p>";
 
-    try {
-        const res = await fetch(BASE_URL);
-        const data = await res.json();
-        meals = data.results;
+  try {
+    const res = await fetch(BASE_URL);
+    const data = await res.json();
+    meals = data.results;
 
-        renderMeals(meals);
-    } catch (error) {
-        menu.innerHTML = "<p>Error loading data</p>";
-    }
-}
-
-// 🔥 Get Calories
-function getCalories(meal) {
-    if (meal.nutrition && meal.nutrition.nutrients) {
-        const item = meal.nutrition.nutrients.find(function (n) {
-            return n.name === "Calories";
-        });
-
-        if (item && item.amount) {
-            return item.amount;
-        }
-    }
-    return "N/A";
-}
-
-// 🧠 Render Meals
-function renderMeals(data) {
-    const menu = document.getElementById("menu");
-
-    menu.innerHTML = data.map(function (meal) {
-        const calories = getCalories(meal);
-
-        let favText;
-        if (favorites.includes(meal.id)) {
-            favText = "Remove ❤️";
-        } else {
-            favText = "Add ❤️";
-        }
-
-        return `
-        <div class="card">
-            <img src="${meal.image}" />
-            <h3>${meal.title}</h3>
-            <p>🔥 ${calories} kcal</p>
-            <p>⭐ ${meal.aggregateLikes}</p>
-            <button onclick="toggleFavorite(${meal.id})">
-                ${favText}
-            </button>
-        </div>
-        `;
-    }).join("");
-}
-
-// ❤️ Favorites
-function toggleFavorite(id) {
-    if (favorites.includes(id)) {
-        favorites = favorites.filter(function (f) {
-            return f !== id;
-        });
-    } else {
-        favorites.push(id);
-    }
-
-    localStorage.setItem("favorites", JSON.stringify(favorites));
     applyAllFilters();
+  } catch (error) {
+    menu.innerHTML = "<p>Error loading data</p>";
+    console.error(error);
+  }
 }
 
-// 🔍 Search
-function searchMeals(data, searchText) {
-    return data.filter(function (meal) {
-        return meal.title.toLowerCase().includes(searchText.toLowerCase());
-    });
+// 🔥 GET CALORIES
+function getCalories(meal) {
+  const item = meal.nutrition?.nutrients?.find(n => n.name === "Calories");
+  return item ? item.amount : 0;
 }
 
-// 🥦 Veg Filter
+// ❤️ TOGGLE FAVORITE
+function toggleFavorite(id) {
+  if (favorites.includes(id)) {
+    favorites = favorites.filter(f => f !== id);
+  } else {
+    favorites.push(id);
+  }
+
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+  applyAllFilters();
+}
+
+// 🎨 RENDER MEALS
+function renderMeals(data) {
+  const menu = document.getElementById("menu");
+
+  if (data.length === 0) {
+    menu.innerHTML = "<p>No results found 😢</p>";
+    return;
+  }
+
+  menu.innerHTML = data.map(meal => `
+    <div class="card">
+      <div class="img-container">
+        <img src="${meal.image}" alt="${meal.title}" />
+
+        <!-- ❤️ Favorite Icon -->
+        <div class="fav-icon" onclick="toggleFavorite(${meal.id})">
+          ${favorites.includes(meal.id) ? "❤️" : "🤍"}
+        </div>
+      </div>
+
+      <h3>${meal.title}</h3>
+      <p>🔥 ${getCalories(meal)} kcal</p>
+      <p>⭐ ${meal.aggregateLikes}</p>
+    </div>
+  `).join("");
+}
+
+// 🔍 SEARCH
+function searchMeals(data, text) {
+  return data.filter(meal =>
+    meal.title.toLowerCase().includes(text.toLowerCase())
+  );
+}
+
+// 🥦 VEG FILTER
 function filterMeals(data, vegOnly) {
-    if (vegOnly) {
-        return data.filter(function (meal) {
-            return meal.vegetarian === true;
-        });
-    } else {
-        return data;
-    }
+  return vegOnly ? data.filter(meal => meal.vegetarian) : data;
 }
 
-// 🔢 Calorie Range Filter
-function filterByCalorieRange(data, range) {
+// 🔥 CALORIE RANGE FILTER
+function filterByCalories(data, range) {
+  if (range === "all") return data;
 
-    if (range === "all") {
-        return data;
-    }
+  return data.filter(meal => {
+    const cal = getCalories(meal);
 
-    return data.filter(function (meal) {
-        const cal = getCalories(meal);
+    if (range === "1000+") return cal >= 1000;
 
-        if (cal === "N/A") {
-            return false;
-        }
-
-        if (range === "1000+") {
-            if (cal >= 1000) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        const parts = range.split("-");
-        const min = parseInt(parts[0]);
-        const max = parseInt(parts[1]);
-
-        if (cal >= min && cal <= max) {
-            return true;
-        } else {
-            return false;
-        }
-    });
+    const [min, max] = range.split("-").map(Number);
+    return cal >= min && cal <= max;
+  });
 }
 
-// ⬆️ Sorting Function
+// ⬆️ SORT
 function sortMeals(data, sortBy, order) {
+  if (sortBy === "default") return data;
 
-    // 🔹 Default (no sorting)
-    if (sortBy === "default") {
-        return data;
-    }
+  return data.slice().sort((a, b) => {
+    let valA, valB;
 
-    // 🔹 Name Sorting
     if (sortBy === "name") {
-        return data.slice().sort(function (a, b) {
-            if (order === "asc") {
-                return a.title.localeCompare(b.title);
-            } else {
-                return b.title.localeCompare(a.title);
-            }
-        });
+      return order === "asc"
+        ? a.title.localeCompare(b.title)
+        : b.title.localeCompare(a.title);
     }
 
-    // 🔹 Popularity Sorting
     if (sortBy === "likes") {
-        return data.slice().sort(function (a, b) {
-            if (order === "asc") {
-                return a.aggregateLikes - b.aggregateLikes;
-            } else {
-                return b.aggregateLikes - a.aggregateLikes;
-            }
-        });
+      valA = a.aggregateLikes;
+      valB = b.aggregateLikes;
     }
 
-    // 🔹 Calories Sorting
     if (sortBy === "calories") {
-        return data.slice().sort(function (a, b) {
-
-            let valA = getCalories(a);
-            let valB = getCalories(b);
-
-            if (valA === "N/A") {
-                valA = 0;
-            }
-
-            if (valB === "N/A") {
-                valB = 0;
-            }
-
-            if (order === "asc") {
-                return valA - valB;
-            } else {
-                return valB - valA;
-            }
-        });
+      valA = getCalories(a);
+      valB = getCalories(b);
     }
 
-    return data;
+    return order === "asc" ? valA - valB : valB - valA;
+  });
 }
 
-// 🔄 Apply All Filters
+// 🔄 APPLY ALL FILTERS
 function applyAllFilters() {
-    const searchText = document.getElementById("search").value;
-    const vegOnly = document.getElementById("vegOnly").checked;
-    const sortBy = document.getElementById("sort").value;
-    const order = document.getElementById("order").value;
-    const calorieRange = document.getElementById("calorieRange").value;
+  const searchText = document.getElementById("search").value;
+  const vegOnly = document.getElementById("vegOnly").checked;
+  const sortBy = document.getElementById("sort").value;
+  const order = document.getElementById("order").value;
+  const calorieRange = document.getElementById("calorieRange").value;
 
-    let result = meals;
+  let result = meals;
 
-    result = searchMeals(result, searchText);
-    result = filterMeals(result, vegOnly);
-    result = filterByCalorieRange(result, calorieRange);
-    result = sortMeals(result, sortBy, order);
+  result = searchMeals(result, searchText);
+  result = filterMeals(result, vegOnly);
+  result = filterByCalories(result, calorieRange);
+  result = sortMeals(result, sortBy, order);
 
-    renderMeals(result);
+  renderMeals(result);
 }
 
-// 🎯 Event Listeners
+// 🎯 EVENT LISTENERS
 document.getElementById("search").addEventListener("input", applyAllFilters);
 document.getElementById("vegOnly").addEventListener("change", applyAllFilters);
 document.getElementById("sort").addEventListener("change", applyAllFilters);
 document.getElementById("order").addEventListener("change", applyAllFilters);
 document.getElementById("calorieRange").addEventListener("change", applyAllFilters);
 
-// 🌙 Dark Mode
-document.getElementById("darkModeToggle").addEventListener("click", function () {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("theme", document.body.classList.contains("dark"));
+// 🌙 DARK MODE
+document.getElementById("darkModeToggle").addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark"));
 });
 
-// Load Theme
+// Load saved theme
 if (localStorage.getItem("theme") === "true") {
-    document.body.classList.add("dark");
+  document.body.classList.add("dark");
 }
 
-// 🚀 Start App
+// 🚀 START APP
 fetchMeals();
