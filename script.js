@@ -129,9 +129,7 @@ function applyAllFilters() {
   const sortBy = document.getElementById("sort").value;
   const order = document.getElementById("order").value;
   const calorieRange = document.getElementById("calorieRange").value;
-
   let result = meals;
-
   result = searchMeals(result, searchText);
   result = filterMeals(result, vegOnly);
   result = filterByCalories(result, calorieRange);
@@ -157,6 +155,5 @@ document.getElementById("darkModeToggle").addEventListener("click", () => {
 if (localStorage.getItem("theme") === "true") {
   document.body.classList.add("dark");
 }
-
 // 🚀 START APP
 fetchMeals();

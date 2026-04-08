@@ -1,6 +1,6 @@
 # 🍕 Food Menu App
 
-A modern and interactive food browsing web application built using **vanilla JavaScript**, designed to demonstrate API integration, dynamic UI rendering, and efficient data manipulation using array methods.
+A modern and interactive food browsing web application built using ** JavaScript**, designed to demonstrate API integration, dynamic UI rendering, and efficient data manipulation using array methods.
 
 ## 📌 Project Overview
 
