@@ -1,7 +1,7 @@
 // 🔑 API KEY
 const API_KEY = "3cd7c4eae7154ec58b9ef1cb617e3f70";
 
-const BASE_URL = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&number=20&addRecipeInformation=true&addRecipeNutrition=true`;
+const BASE_URL = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&number=1000&addRecipeInformation=true&addRecipeNutrition=true`;
 
 // 📦 DATA
 let meals = [];
