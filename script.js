@@ -1,13 +1,13 @@
-// 🔑 API KEY
+// API KEY
 const API_KEY = "3cd7c4eae7154ec58b9ef1cb617e3f70";
 
 const BASE_URL = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&number=1000&addRecipeInformation=true&addRecipeNutrition=true`;
 
-// 📦 DATA
+// DATA
 let meals = [];
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-// 🔄 FETCH DATA
+// FETCH DATA
 async function fetchMeals() {
   const menu = document.getElementById("menu");
   menu.innerHTML = "<p>Loading...</p>";
@@ -24,13 +24,13 @@ async function fetchMeals() {
   }
 }
 
-// 🔥 GET CALORIES
+// GET CALORIES
 function getCalories(meal) {
   const item = meal.nutrition?.nutrients?.find(n => n.name === "Calories");
   return item ? item.amount : 0;
 }
 
-// ❤️ TOGGLE FAVORITE
+// TOGGLE FAVORITE
 function toggleFavorite(id) {
   if (favorites.includes(id)) {
     favorites = favorites.filter(f => f !== id);
@@ -42,7 +42,7 @@ function toggleFavorite(id) {
   applyAllFilters();
 }
 
-// 🎨 RENDER MEALS
+// RENDER MEALS
 function renderMeals(data) {
   const menu = document.getElementById("menu");
 
@@ -69,19 +69,19 @@ function renderMeals(data) {
   `).join("");
 }
 
-// 🔍 SEARCH
+// SEARCH
 function searchMeals(data, text) {
   return data.filter(meal =>
     meal.title.toLowerCase().includes(text.toLowerCase())
   );
 }
 
-// 🥦 VEG FILTER
+//VEG FILTER
 function filterMeals(data, vegOnly) {
   return vegOnly ? data.filter(meal => meal.vegetarian) : data;
 }
 
-// 🔥 CALORIE RANGE FILTER
+// CALORIE RANGE FILTER
 function filterByCalories(data, range) {
   if (range === "all") return data;
 
@@ -95,7 +95,7 @@ function filterByCalories(data, range) {
   });
 }
 
-// ⬆️ SORT
+//SORT
 function sortMeals(data, sortBy, order) {
   if (sortBy === "default") return data;
 
@@ -122,7 +122,7 @@ function sortMeals(data, sortBy, order) {
   });
 }
 
-// 🔄 APPLY ALL FILTERS
+// APPLY ALL FILTERS
 function applyAllFilters() {
   const searchText = document.getElementById("search").value;
   const vegOnly = document.getElementById("vegOnly").checked;
@@ -138,14 +138,14 @@ function applyAllFilters() {
   renderMeals(result);
 }
 
-// 🎯 EVENT LISTENERS
+// EVENT LISTENERS
 document.getElementById("search").addEventListener("input", applyAllFilters);
 document.getElementById("vegOnly").addEventListener("change", applyAllFilters);
 document.getElementById("sort").addEventListener("change", applyAllFilters);
 document.getElementById("order").addEventListener("change", applyAllFilters);
 document.getElementById("calorieRange").addEventListener("change", applyAllFilters);
 
-// 🌙 DARK MODE
+//  DARK MODE
 document.getElementById("darkModeToggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
   localStorage.setItem("theme", document.body.classList.contains("dark"));
@@ -155,5 +155,5 @@ document.getElementById("darkModeToggle").addEventListener("click", () => {
 if (localStorage.getItem("theme") === "true") {
   document.body.classList.add("dark");
 }
-// 🚀 START APP
+//START APP
 fetchMeals();
